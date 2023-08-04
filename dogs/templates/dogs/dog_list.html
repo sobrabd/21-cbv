@@ -9,6 +9,10 @@
         <div class="card-body">
             <p class="card-text">{{object.name|title}}</p>
             <p class="card-text">{{object.description}}</p>
+            <div class="card-footer">
+                <a class="btn btn-link" href="{% url 'dogs:dog_update' object.pk %}">изменить</a>
+                <a class="btn btn-outline-danger float-right" href="{% url 'dogs:dog_delete' object.pk %}">удалить</a>
+            </div>
 
         </div>
     </div>

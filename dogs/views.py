@@ -1,19 +1,21 @@
 from typing import Any, Dict
 from django.db.models.query import QuerySet
 from django.shortcuts import render
-from django.views.generic import ListView
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView, TemplateView
 from .models import Category, Dog
+from django.urls import reverse_lazy, reverse
 
 
-# Create your views here.
-def index(request):
-    context = {
-        'objects_list': Category.objects.all()[:3],
-        'title': 'Питомник - Добро пожаловать'
+class IndexView(TemplateView):
+    template_name = 'dogs/index.html'
+    extra_context = {
+        'title': 'Питомник - Добро пожаловать',
     }
 
-    return render(request, 'dogs/index.html', context)
-
+    def get_context_data(self, **kwargs: Any):
+        context_data = super().get_context_data(**kwargs)
+        context_data['object_list'] = Category.objects.all()[:3]
+        return context_data
 
 
 class CategoryListView(ListView):
@@ -40,19 +42,20 @@ class DogListView(ListView):
         return context_data
 
 
-# def category_dogs(request, pk):
-#     category = Category.objects.get(pk=pk)
-#     context = {
-#         'objects_list': Dog.objects.filter(category_id=pk),
-#         'title': f'Все собаки породы {category.name}'
-#     }
+class DogCreateView(CreateView):
+    model = Dog
+    fields = ('name', 'category')
+    success_url = reverse_lazy('dogs:categories')
 
-#     return render(request, 'dogs/dogs.html', context)
 
-# def categories(request):
-#     context = {
-#         'objects_list': Category.objects.all(),
-#         'title': 'Питомник - Наши породы'
-#     }
+class DogUpdateView(UpdateView):
+    model = Dog
+    fields = ('name', 'category')
 
-#     return render(request, 'dogs/categories.html', context)
+    def get_success_url(self):
+        return reverse('dogs:category_dogs', args=[self.object.category.pk])
+    
+
+class DogDeleteView(DeleteView):
+    model = Dog
+    success_url = reverse_lazy('dogs:categories')
